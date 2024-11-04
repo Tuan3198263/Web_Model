@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ML API</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Pacifico"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Arimo"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Hind:300"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center">Dự Đoán Bảo Hiểm Xe Ô Tô</h1>
+
+      <!-- Main Input For Receiving Query to our ML -->
+      <form action="{{ url_for('predict')}}" method="post" class="mt-4">
+        <div class="form-row">
+          <div class="form-group col-md-2">
+            <label for="age">Tuổi</label>
+            <select class="form-control" id="age" name="AGE" required>
+              <option value="">Chọn độ tuổi</option>
+              <option value="0">16-25</option>
+              <option value="1">26-39</option>
+              <option value="2">40-64</option>
+              <option value="3">65+</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="sex">Giới tính</label>
+            <select class="form-control" id="sex" name="SEX" required>
+              <option value="">Chọn giới tính</option>
+              <option value="0">Female</option>
+              <option value="1">Male</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="race">Chủng tộc</label>
+            <select class="form-control" id="race" name="RACE" required>
+              <option value="" disabled selected>Chọn chủng tộc</option>
+              <option value="0">Majority(Đa số)</option>
+              <option value="1">Minority(Thiểu số)</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="driving_experience">Kinh nghiệm lái xe</label>
+            <select
+              class="form-control"
+              id="driving_experience"
+              name="DRIVING_EXPERIENCE"
+              required
+            >
+              <option value="" disabled selected>
+                Chọn kinh nghiệm lái xe
+              </option>
+              <option value="0">0-9 năm</option>
+              <option value="1">10-19 năm</option>
+              <option value="2">20-29 năm</option>
+              <option value="3">30 năm trở lên</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="education">Trình độ học vấn</label>
+            <select
+              class="form-control"
+              id="education"
+              name="EDUCATION"
+              required
+            >
+              <option value="" disabled selected>Chọn trình độ học vấn</option>
+              <option value="0">High School</option>
+              <option value="1">University</option>
+              <option value="2">None</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-2">
+            <label for="income">Thu nhập</label>
+            <select class="form-control" id="income" name="INCOME" required>
+              <option value="" disabled selected>Chọn thu nhập</option>
+              <option value="0">Poverty</option>
+              <option value="1">Working Class</option>
+              <option value="2">Middle Class</option>
+              <option value="3">Upper Class</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="credit_score">Điểm tín dụng</label>
+            <input
+              type="number"
+              class="form-control"
+              id="credit_score"
+              name="CREDIT_SCORE"
+              placeholder="VD: 0.206013"
+              min="0"
+              max="1"
+              required
+              step="0.0000000001"
+            />
+          </div>
+          <div class="form-group col-md-2">
+            <label for="vehicle_ownership">Sở hữu xe</label>
+            <select
+              class="form-control"
+              id="vehicle_ownership"
+              name="VEHICLE_OWNERSHIP"
+              required
+            >
+              <option value="" disabled selected>
+                Chọn tình trạng sở hữu xe
+              </option>
+              <option value="0">Không sở hữu</option>
+              <option value="1">Sở hữu</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="vehicle_year">Năm xe</label>
+            <select
+              class="form-control"
+              id="vehicle_year"
+              name="VEHICLE_YEAR"
+              required
+            >
+              <option value="" disabled selected>Chọn năm xe</option>
+              <option value="0">Trước 2015</option>
+              <option value="1">Sau 2015</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="married">Tình trạng hôn nhân</label>
+            <select class="form-control" id="married" name="MARRIED" required>
+              <option value="" disabled selected>
+                Chọn tình trạng hôn nhân
+              </option>
+              <option value="0">Chưa kết hôn</option>
+              <option value="1">Đã kết hôn</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-2">
+            <label for="children">Tình trạng con cái</label>
+            <select class="form-control" id="children" name="CHILDREN" required>
+              <option value="" disabled selected>Chọn tình trạng</option>
+              <option value="0">Chưa có con</option>
+              <option value="1">Có con</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="postal_code">Mã bưu chính</label>
+            <select
+              class="form-control"
+              id="postal_code"
+              name="POSTAL_CODE"
+              required
+            >
+              <option value="" disabled selected>Chọn mã bưu chính</option>
+              <option value="0">10238</option>
+              <option value="1">32765</option>
+              <option value="2">92101</option>
+              <option value="3">21217</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="annual_mileage">Số dặm hàng năm</label>
+            <input
+              type="number"
+              class="form-control"
+              id="annual_mileage"
+              name="ANNUAL_MILEAGE"
+              placeholder="VD: 12000"
+              required
+              min="0"
+            />
+          </div>
+          <div class="form-group col-md-2">
+            <label for="vehicle_type">Loại xe</label>
+            <select
+              class="form-control"
+              id="vehicle_type"
+              name="VEHICLE_TYPE"
+              required
+            >
+              <option value="" disabled selected>Chọn loại xe</option>
+              <option value="0">Sedan</option>
+              <option value="1">Sports Car</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="speeding_violations">Số lần vi phạm tốc độ</label>
+            <input
+              type="number"
+              class="form-control"
+              id="speeding_violations"
+              name="SPEEDING_VIOLATIONS"
+              placeholder="VD: 0, 2"
+              required
+              min="0"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-2">
+            <label for="duis">Vi phạm lái xe khi say rượu</label>
+            <select class="form-control" id="duis" name="DUIS" required>
+              <option value="" disabled selected>Chọn số lần vi phạm</option>
+              <option value="0">Không vi phạm</option>
+              <option value="1">Một lần vi phạm</option>
+              <option value="2">Hai lần vi phạm</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="past_accidents">Số lần tai nạn trong quá khứ</label>
+            <input
+              type="number"
+              class="form-control"
+              id="past_accidents"
+              name="PAST_ACCIDENTS"
+              placeholder="VD: 1"
+              required
+              min="0"
+            />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Dự Đoán</button>
+        <button
+          type="button"
+          class="btn btn-secondary mt-3"
+          id="generate-sample"
+        >
+          Tạo mẫu
+        </button>
+      </form>
+      <br />
+      {{prediction_text}}
+    </div>
+
+    <script>
+      document
+        .getElementById("generate-sample")
+        .addEventListener("click", function () {
+          // Tạo mẫu dữ liệu ngẫu nhiên
+          const sampleData = {
+            AGE: Math.floor(Math.random() * 4), // Ngẫu nhiên từ 0 đến 3
+            SEX: Math.round(Math.random()), // Ngẫu nhiên 0 hoặc 1
+            RACE: Math.round(Math.random()), // Ngẫu nhiên 0 hoặc 1
+            DRIVING_EXPERIENCE: Math.floor(Math.random() * 4), // Ngẫu nhiên từ 0 đến 3
+            EDUCATION: Math.floor(Math.random() * 3), // Ngẫu nhiên từ 0 đến 2
+            INCOME: Math.floor(Math.random() * 4), // Ngẫu nhiên từ 0 đến 3
+            CREDIT_SCORE: Math.random().toFixed(5), // Ngẫu nhiên từ 0.00 đến 1.00
+            VEHICLE_OWNERSHIP: Math.round(Math.random()), // Ngẫu nhiên 0 hoặc 1
+            VEHICLE_YEAR: Math.round(Math.random()), // Ngẫu nhiên từ 0 đến 1
+            MARRIED: Math.round(Math.random()), // Ngẫu nhiên 0 hoặc 1
+            CHILDREN: Math.round(Math.random()), // Ngẫu nhiên 0 hoặc 1
+            POSTAL_CODE: Math.floor(Math.random() * 4), // Ngẫu nhiên mã bưu chính
+            ANNUAL_MILEAGE: Math.floor(Math.random() * 20000), // Ngẫu nhiên số dặm hàng năm từ 0 đến 20000
+            VEHICLE_TYPE: Math.round(Math.random()), // Ngẫu nhiên từ 0 đến 3
+            SPEEDING_VIOLATIONS: Math.floor(Math.random() * 5), // Ngẫu nhiên 0 hoặc 1
+            DUIS: Math.floor(Math.random() * 3), // Ngẫu nhiên 0 hoặc 1
+            PAST_ACCIDENTS: Math.round(Math.random() * 15), // Ngẫu nhiên 0 hoặc 1
+          };
+
+          // Điền vào các trường input
+          document.getElementById("age").value = sampleData.AGE;
+          document.getElementById("sex").value = sampleData.SEX;
+          document.getElementById("race").value = sampleData.RACE;
+          document.getElementById("driving_experience").value =
+            sampleData.DRIVING_EXPERIENCE;
+          document.getElementById("education").value = sampleData.EDUCATION;
+          document.getElementById("income").value = sampleData.INCOME;
+          document.getElementById("credit_score").value =
+            sampleData.CREDIT_SCORE;
+          document.getElementById("vehicle_ownership").value =
+            sampleData.VEHICLE_OWNERSHIP;
+          document.getElementById("vehicle_year").value =
+            sampleData.VEHICLE_YEAR;
+          document.getElementById("married").value = sampleData.MARRIED;
+          document.getElementById("children").value = sampleData.CHILDREN;
+          document.getElementById("postal_code").value = sampleData.POSTAL_CODE;
+          document.getElementById("annual_mileage").value =
+            sampleData.ANNUAL_MILEAGE;
+          document.getElementById("vehicle_type").value =
+            sampleData.VEHICLE_TYPE;
+          document.getElementById("speeding_violations").value =
+            sampleData.SPEEDING_VIOLATIONS;
+          document.getElementById("duis").value = sampleData.DUIS;
+          document.getElementById("past_accidents").value =
+            sampleData.PAST_ACCIDENTS;
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
